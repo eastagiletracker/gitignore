@@ -20,15 +20,21 @@ export async function removeDuplicates(arr: string): Promise<string> {
 /**
  * Creates a dictionary of technology gitignore templates and their corresponding options.
  * @param techOptions - An array of requested technology options to retrieve the gitignore templates for.
+ * Empty options and options without a gitignore template are ignored.
  * @returns A dictionary of gitignore templates files names and their corresponding options.
  */
 export async function createNeededFilesDict(techOptions: string[], allTechOptions: { [key: string]: string }, techOptionsFiles: { [key: string]: string[] }): Promise<{ [key: string]: string[] }> {
   const filesDict: { [key: string]: string[] } = {};
 
   techOptions.forEach((option) => {
-    techOptionsFiles[allTechOptions[option.toLowerCase()]].map((file) => {
+    const techOption = allTechOptions[option.trim().toLowerCase()];
+
+    // skip empty options (e.g. a trailing comma) and options without a template
+    if (!techOption || !techOptionsFiles[techOption]) return;
+
+    techOptionsFiles[techOption].map((file) => {
       filesDict[file] = filesDict[file] || [];
-      filesDict[file].push(allTechOptions[option.toLowerCase()]);
+      filesDict[file].push(techOption);
     });
   });
 

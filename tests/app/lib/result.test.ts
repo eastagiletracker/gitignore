@@ -83,6 +83,20 @@ describe("createNeededFilesDict", () => {
 
     expect(sortArrays(result)).toEqual(sortArrays(expectedDict));
   });
+
+  test("create needed files dictionary: ignores empty and unknown options", async () => {
+    const techOptions = ["C", "", " C++ ", "notatech"];
+    const expectedDict = {
+      "C++.gitignore": ["C++"],
+      "C.gitignore": ["C"],
+    };
+    const result = await createNeededFilesDict(
+      techOptions,
+      allTechOptions,
+      techOptionsFiles,
+    );
+    expect(result).toEqual(expectedDict);
+  });
 });
 
 //-------------------------------------------------------------------------------
@@ -168,6 +182,16 @@ describe("getResult", () => {
       "./tests/assets/ReactNative_Android.gitignore",
       "utf8",
     );
+
+    expect(result).toBe(expected);
+  });
+
+  test("getResult: trailing comma and unknown option", async () => {
+    const techOptions = "c,c++,notatech,".split(",");
+
+    const result = await getResult(techOptions);
+
+    const expected = fs.readFileSync("./tests/assets/C_C++.gitignore", "utf8");
 
     expect(result).toBe(expected);
   });

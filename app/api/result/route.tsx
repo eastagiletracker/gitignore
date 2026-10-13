@@ -23,19 +23,17 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     ? req.nextUrl.searchParams.get("remDupl")?.toLowerCase() === "true"
     : true;
 
-  if (
-    !req.nextUrl.searchParams.has("options") &&
-    req.nextUrl.searchParams.get("options")?.replace(",", "").length === 0
-  ) {
+  // Get the options from the query parameter, ignoring empty entries
+  let techOptions = (req.nextUrl.searchParams.get("options") ?? "")
+    .split(",")
+    .filter((option) => option.trim().length > 0);
+
+  if (techOptions.length === 0) {
     return NextResponse.json(
       { error: "No query parameters provided" },
       { status: 400 },
     );
   }
-  // Get the options from the query parameter
-  let techOptions = (req.nextUrl.searchParams.get("options") as string).split(
-    ",",
-  );
   let resultText = await getResult(techOptions, remDupl);
   return new NextResponse(resultText, {
     status: 200,
